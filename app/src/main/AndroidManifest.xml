@@ -13,12 +13,12 @@
         android:maxSdkVersion="32" />
 
     <!-- 基础权限 -->
-    <uses-permission
-        android:name="android.permission.FOREGROUND_SERVICE"
-        tools:ignore="ForegroundServicesPolicy" />
+<!--    <uses-permission-->
+<!--        android:name="android.permission.FOREGROUND_SERVICE"-->
+<!--        tools:ignore="ForegroundServicesPolicy" />-->
     <!-- Android 14+ 必须指定具体的类型，这里建议使用 specialUse 或 dataSync -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+<!--    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />-->
+<!--    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />-->
     <!-- Android 13+ 发送通知权限 -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
@@ -78,24 +78,18 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <service
-            android:name=".service.ReaderService"
-            android:enabled="true"
-            android:exported="false"
-            android:foregroundServiceType="specialUse" />
-
-        <receiver
-            android:name=".receiver.BootReceiver"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="android.intent.action.USER_PRESENT" />
-                <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
-                <action android:name="android.intent.action.BATTERY_CHANGED" />
-                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
-            </intent-filter>
-        </receiver>
+<!--        <receiver-->
+<!--            android:name=".receiver.BootReceiver"-->
+<!--            android:enabled="true"-->
+<!--            android:exported="true">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.BOOT_COMPLETED" />-->
+<!--                <action android:name="android.intent.action.USER_PRESENT" />-->
+<!--                <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />-->
+<!--                <action android:name="android.intent.action.BATTERY_CHANGED" />-->
+<!--                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />-->
+<!--            </intent-filter>-->
+<!--        </receiver>-->
 
         <receiver
             android:name=".receiver.ScreenStateReceiver"

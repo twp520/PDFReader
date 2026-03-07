@@ -1,9 +1,19 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.devtools.ksp)
     alias(libs.plugins.dagger.hilt.android)
+}
+
+val keystoreProperties = Properties().apply {
+    val propertiesFile = rootProject.file("local.properties")
+    if (propertiesFile.exists()) {
+        load(FileInputStream(propertiesFile))
+    }
 }
 
 android {
@@ -16,10 +26,18 @@ android {
         applicationId = "com.ncw6fg.nxhw18e.pdfreader"
         minSdk = 24
         targetSdk = 36
-        versionCode = 100
-        versionName = "1.0.0"
-
+        versionCode = 101
+        versionName = "1.0.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        create("release") {
+            storeFile = keystoreProperties.getProperty("signing.storeFile")?.let { file(it) }
+            storePassword = keystoreProperties.getProperty("signing.storePassword")
+            keyAlias = keystoreProperties.getProperty("signing.keyAlias")
+            keyPassword = keystoreProperties.getProperty("signing.keyPassword")
+        }
     }
 
     buildTypes {
@@ -29,6 +47,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
@@ -39,6 +58,7 @@ android {
     buildFeatures {
         compose = true
     }
+
 }
 
 dependencies {

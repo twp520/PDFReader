@@ -1,15 +1,17 @@
 package com.ncw6fg.nxhw18e.pdfreader.data.util
 
+import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
+import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Intent
 import android.graphics.drawable.Icon
+import android.os.Build
 import android.webkit.MimeTypeMap
 import androidx.core.app.NotificationCompat
 import androidx.core.content.FileProvider
 import com.ncw6fg.nxhw18e.pdfreader.R
-import com.ncw6fg.nxhw18e.pdfreader.service.ReaderService
 import com.ncw6fg.nxhw18e.pdfreader.ui.act.WelcomeActivity
 import java.io.File
 
@@ -74,6 +76,23 @@ object PDFileUtil {
         }
     }
 
+    const val CHANNEL_ID = "reader_service_channel"
+    const val NOTIFICATION_ID_NOTE = 1002
+
+    fun createNotificationChannel(context: Context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                "Reader Service Channel",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Reader Main Service Channel"
+            }
+            val manager = context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+            manager.createNotificationChannel(channel)
+        }
+    }
+
     fun sendNotification(context: Context, count: Int) {
         val manager = context.getSystemService(NotificationManager::class.java)
         val pendingIntent = Intent(context, WelcomeActivity::class.java).let {
@@ -81,16 +100,17 @@ object PDFileUtil {
             PendingIntent.getActivity(context, 0, it, PendingIntent.FLAG_IMMUTABLE)
         }
         // 构建通知
-        val notification = NotificationCompat.Builder(context, ReaderService.CHANNEL_ID)
+        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_round)
             .setLargeIcon(Icon.createWithResource(context, R.drawable.ic_launcher_round))
             .setContentTitle(context.getString(R.string.discover_new_document))
             .setContentText(context.getString(R.string.discover_new_doc_content, count))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)
+            .setOngoing(true)
             .setFullScreenIntent(pendingIntent, true)
             .build()
         // 发送
-        manager.notify(ReaderService.NOTIFICATION_ID_NOTE, notification)
+        manager.notify(NOTIFICATION_ID_NOTE, notification)
     }
 }

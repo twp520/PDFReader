@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.os.Build
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
@@ -13,9 +12,9 @@ import coil3.ImageLoader
 import coil3.SingletonImageLoader
 import com.ncw6fg.nxhw18e.pdfreader.data.PdfPageFetcher
 import com.ncw6fg.nxhw18e.pdfreader.data.PdfPageKeyer
+import com.ncw6fg.nxhw18e.pdfreader.data.util.PDFileUtil
 import com.ncw6fg.nxhw18e.pdfreader.receiver.ScreenStateReceiver
 import com.ncw6fg.nxhw18e.pdfreader.service.DocumentReminderWorker
-import com.ncw6fg.nxhw18e.pdfreader.service.ReaderService
 import dagger.hilt.android.HiltAndroidApp
 import java.util.concurrent.TimeUnit
 
@@ -37,12 +36,7 @@ class PDRApplication : Application() {
                 }
                 .build()
         }
-        val serviceIntent = Intent(this, ReaderService::class.java)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(serviceIntent)
-        } else {
-            startService(serviceIntent)
-        }
+        PDFileUtil.createNotificationChannel(this)
         scheduleDocumentReminder(this)
         registerReceiver(ScreenStateReceiver(), IntentFilter().apply {
             addAction(Intent.ACTION_SCREEN_ON)

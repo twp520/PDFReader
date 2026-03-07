@@ -3,16 +3,19 @@ package com.ncw6fg.nxhw18e.pdfreader.ui.screen
 import android.content.Intent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CardDefaults
@@ -331,6 +334,37 @@ private fun PermissionLayout(viewModel: MainViewModel) {
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center
             )
+            CommonSpace(height = 24.dp)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .border(
+                        1.dp, MaterialTheme.colorScheme.tertiary,
+                        RoundedCornerShape(10.dp)
+                    )
+                    .padding(start = 8.dp, end = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    modifier = Modifier.weight(1f),
+                    text = "Allow to access manage all files",
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+
+                Box(contentAlignment = Alignment.Center) {
+                    Image(
+                        modifier = Modifier.size(35.dp),
+                        painter = painterResource(R.drawable.icon_toogle),
+                        contentDescription = ""
+                    )
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(50.dp)
+                    )
+                }
+            }
             CommonSpace(height = 24.dp)
             ShimmerButton(
                 text = stringResource(R.string.allow)
