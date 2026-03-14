@@ -1,5 +1,6 @@
 package com.ncw6fg.nxhw18e.pdfreader.ui.screen
 
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,9 +26,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ncw6fg.nxhw18e.pdfreader.R
+import com.ncw6fg.nxhw18e.pdfreader.money.AnalysisUtils
+import com.ncw6fg.nxhw18e.pdfreader.ui.theme.AdDialog
 import com.ncw6fg.nxhw18e.pdfreader.ui.theme.fillMax
 import com.ncw6fg.nxhw18e.pdfreader.ui.vm.FileListViewModel
 import com.ncw6fg.nxhw18e.pdfreader.ui.vm.SearchViewModel
+import com.ncw6fg.nxhw18e.pdfreader.ui.vm.SimpleViewModel
 
 /**
  * create by colin
@@ -40,6 +44,9 @@ fun SearchScreen(back: () -> Unit, searchViewModel: SearchViewModel = viewModel(
     val fileListViewModel = viewModel<FileListViewModel>()
     val files = searchViewModel.searchResult.collectAsStateWithLifecycle()
     val keyword = searchViewModel.keyword.collectAsStateWithLifecycle()
+    val simpleViewModel = viewModel<SimpleViewModel>()
+    val showAd = simpleViewModel.showAdLoading.collectAsStateWithLifecycle()
+    val activity = LocalActivity.current
     Scaffold(
         modifier = fillMax,
     ) { innerPadding ->
@@ -50,7 +57,15 @@ fun SearchScreen(back: () -> Unit, searchViewModel: SearchViewModel = viewModel(
                     .padding(end = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = back) {
+                IconButton(onClick = {
+                    activity?.let {
+                        simpleViewModel.showAD(
+                            it,
+                            AnalysisUtils.FROM_BACK_INTER,
+                            finish = back
+                        )
+                    }
+                }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "back"
@@ -84,6 +99,8 @@ fun SearchScreen(back: () -> Unit, searchViewModel: SearchViewModel = viewModel(
                 }
             }
         }
-
+        if (showAd.value) {
+            AdDialog()
+        }
     }
 }

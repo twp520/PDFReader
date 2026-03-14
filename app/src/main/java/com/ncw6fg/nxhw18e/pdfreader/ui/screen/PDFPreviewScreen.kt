@@ -1,6 +1,7 @@
 package com.ncw6fg.nxhw18e.pdfreader.ui.screen
 
 import android.util.Log
+import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
@@ -35,9 +36,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import com.ncw6fg.nxhw18e.pdfreader.data.PdfPageModel
+import com.ncw6fg.nxhw18e.pdfreader.money.AnalysisUtils
+import com.ncw6fg.nxhw18e.pdfreader.ui.theme.AdDialog
 import com.ncw6fg.nxhw18e.pdfreader.ui.theme.CommonTopBar
+import com.ncw6fg.nxhw18e.pdfreader.ui.vm.SimpleViewModel
 import com.ymg.pdf.viewer.PDFView
 import java.io.File
 
@@ -54,12 +60,22 @@ fun PDFPreviewScreen(fileName: String, path: String, goback: () -> Unit) {
     val pageCount = remember { mutableIntStateOf(-1) }
     val pdfViewRef = remember { mutableStateOf<PDFView?>(null) }
     val isLoaded = remember { mutableStateOf(false) }
-
+    val simpleViewModel = viewModel<SimpleViewModel>()
+    val showADLoading = simpleViewModel.showAdLoading.collectAsStateWithLifecycle()
+    val act = LocalActivity.current
     Scaffold(
         topBar = {
             CommonTopBar(
                 title = fileName,
-                goBack = goback
+                goBack = {
+                    act?.let {
+                        simpleViewModel.showAD(
+                            it,
+                            AnalysisUtils.FROM_BACK_INTER,
+                            finish = goback
+                        )
+                    }
+                }
             )
         },
     ) { padding ->
@@ -129,6 +145,10 @@ fun PDFPreviewScreen(fileName: String, path: String, goback: () -> Unit) {
                     modifier = Modifier.align(Alignment.Center)
                 )
             }
+        }
+
+        if (showADLoading.value) {
+            AdDialog()
         }
     }
 }

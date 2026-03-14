@@ -27,20 +27,21 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
+import com.ncw6fg.nxhw18e.pdfreader.R
 import com.ncw6fg.nxhw18e.pdfreader.data.DocFile
 import com.ncw6fg.nxhw18e.pdfreader.ui.bean.DocumentType
+import com.ncw6fg.nxhw18e.pdfreader.ui.theme.AdDialog
 import com.ncw6fg.nxhw18e.pdfreader.ui.theme.CommonTopBar
 import com.ncw6fg.nxhw18e.pdfreader.ui.theme.fillMax
 import com.ncw6fg.nxhw18e.pdfreader.ui.vm.FileListViewModel
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
-import com.ncw6fg.nxhw18e.pdfreader.R
 
 
 /**
@@ -54,6 +55,7 @@ fun FileListScreen(
     back: () -> Unit
 ) {
     val files = viewModel.files.collectAsStateWithLifecycle()
+    val showAdLoading = viewModel.showAdLoading.collectAsStateWithLifecycle()
     Scaffold(
         modifier = fillMax,
         topBar = {
@@ -66,6 +68,9 @@ fun FileListScreen(
                 FileListItem(modifier = Modifier.animateItem(), file = it, viewModel = viewModel)
             }
         }
+    }
+    if (showAdLoading.value) {
+        AdDialog()
     }
 }
 

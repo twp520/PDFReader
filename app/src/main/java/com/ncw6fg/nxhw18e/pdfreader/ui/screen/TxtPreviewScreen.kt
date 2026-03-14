@@ -1,5 +1,6 @@
 package com.ncw6fg.nxhw18e.pdfreader.ui.screen
 
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,7 +20,10 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.ncw6fg.nxhw18e.pdfreader.money.AnalysisUtils
+import com.ncw6fg.nxhw18e.pdfreader.ui.theme.AdDialog
 import com.ncw6fg.nxhw18e.pdfreader.ui.theme.CommonTopBar
+import com.ncw6fg.nxhw18e.pdfreader.ui.vm.SimpleViewModel
 import com.ncw6fg.nxhw18e.pdfreader.ui.vm.TxtPreviewViewModel
 
 /**
@@ -41,11 +45,21 @@ fun TxtPreviewScreen(
 
     val isLoading = viewModel.isLoading.collectAsStateWithLifecycle()
     val txtContent = viewModel.textContent.collectAsStateWithLifecycle()
-
+    val simpleViewModel = viewModel<SimpleViewModel>()
+    val showAd = simpleViewModel.showAdLoading.collectAsStateWithLifecycle()
+    val activity = LocalActivity.current
     Scaffold(
         topBar = {
             // 使用你项目中已有的 CommonTopBar
-            CommonTopBar(title = fileName, goBack = goBack)
+            CommonTopBar(title = fileName, goBack = {
+                activity?.let {
+                    simpleViewModel.showAD(
+                        it,
+                        AnalysisUtils.FROM_BACK_INTER,
+                        finish = goBack
+                    )
+                }
+            })
         }
     ) { padding ->
         Box(
@@ -74,6 +88,9 @@ fun TxtPreviewScreen(
                 }
             }
 
+        }
+        if (showAd.value) {
+            AdDialog()
         }
     }
 }

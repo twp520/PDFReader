@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -45,13 +46,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ncw6fg.nxhw18e.pdfreader.R
-import com.ncw6fg.nxhw18e.pdfreader.data.EXTRA_IS_ALL
-import com.ncw6fg.nxhw18e.pdfreader.data.EXTRA_IS_BOOKMARK
-import com.ncw6fg.nxhw18e.pdfreader.data.EXTRA_TITLE
-import com.ncw6fg.nxhw18e.pdfreader.data.EXTRA_TYPE
+import com.ncw6fg.nxhw18e.pdfreader.data.findActivity
+import com.ncw6fg.nxhw18e.pdfreader.money.DisplaySmallNativeAdView
 import com.ncw6fg.nxhw18e.pdfreader.ui.act.CreatePdfActivity
-import com.ncw6fg.nxhw18e.pdfreader.ui.act.FilesListActivity
 import com.ncw6fg.nxhw18e.pdfreader.ui.act.SearchActivity
+import com.ncw6fg.nxhw18e.pdfreader.ui.theme.AdDialog
 import com.ncw6fg.nxhw18e.pdfreader.ui.theme.CommonSpace
 import com.ncw6fg.nxhw18e.pdfreader.ui.theme.ShimmerButton
 import com.ncw6fg.nxhw18e.pdfreader.ui.theme.colorMainGridAll
@@ -78,6 +77,7 @@ fun RootScreen(viewModel: MainViewModel) {
         skipPartiallyExpanded = true // 直接全展开
     )
     val context = LocalContext.current
+    val nativeAd = viewModel.nativeAd.collectAsStateWithLifecycle()
     Scaffold(
         modifier = fillMax,
         topBar = {
@@ -123,6 +123,10 @@ fun RootScreen(viewModel: MainViewModel) {
                     }
                     CommonSpace(height = 16.dp)
                     DocumentGrid(viewModel)
+                    Spacer(Modifier.weight(1f))
+                    nativeAd.value?.let { ad ->
+                        DisplaySmallNativeAdView(ad)
+                    }
                 }
                 if (!isPermissionGranted.value) {
                     ModalBottomSheet(
@@ -150,6 +154,7 @@ private fun DocumentGrid(viewModel: MainViewModel) {
     val gridItems = viewModel.gridItems.collectAsStateWithLifecycle()
     val allFiles = viewModel.allFiles.collectAsStateWithLifecycle()
     val bookmarkFiles = viewModel.bookmarkFiles.collectAsStateWithLifecycle()
+    val showAdLoading = viewModel.showAdLoading.collectAsStateWithLifecycle()
     val context = LocalContext.current
     LazyVerticalGrid(
         modifier = Modifier.fillMaxWidth(),
@@ -164,15 +169,9 @@ private fun DocumentGrid(viewModel: MainViewModel) {
                     R.string.main_item_all,
                     allFiles.value.size,
                     onClick = {
-                        context.startActivity(
-                            Intent(
-                                context,
-                                FilesListActivity::class.java
-                            ).apply {
-                                putExtra(EXTRA_IS_ALL, true)
-                                putExtra(EXTRA_TITLE, context.getString(R.string.main_item_all))
-                            }
-                        )
+                        context.findActivity()?.let {
+                            viewModel.onGridAllClicked(it)
+                        }
                     }
                 )
             }
@@ -183,16 +182,12 @@ private fun DocumentGrid(viewModel: MainViewModel) {
                     it.title,
                     it.count,
                     onClick = {
-                        //goto file list activity with type
-                        context.startActivity(
-                            Intent(
-                                context,
-                                FilesListActivity::class.java
-                            ).apply {
-                                putExtra(EXTRA_TYPE, it.type)
-                                putExtra(EXTRA_TITLE, context.getString(it.title))
-                            }
-                        )
+                        context.findActivity()?.let { act ->
+                            viewModel.onGridItemClicked(
+                                act, it.type,
+                                act.getString(it.title)
+                            )
+                        }
                     }
                 )
             }
@@ -203,18 +198,9 @@ private fun DocumentGrid(viewModel: MainViewModel) {
                     R.string.main_item_bookmark,
                     bookmarkFiles.value.size,
                     onClick = {
-                        context.startActivity(
-                            Intent(
-                                context,
-                                FilesListActivity::class.java
-                            ).apply {
-                                putExtra(EXTRA_IS_BOOKMARK, true)
-                                putExtra(
-                                    EXTRA_TITLE,
-                                    context.getString(R.string.main_item_bookmark)
-                                )
-                            }
-                        )
+                        context.findActivity()?.let {
+                            viewModel.onGridBookmarkClicked(it)
+                        }
                     }
                 )
             }
@@ -235,6 +221,10 @@ private fun DocumentGrid(viewModel: MainViewModel) {
                 )
             }
         })
+
+    if (showAdLoading.value) {
+        AdDialog()
+    }
 }
 
 @Composable
@@ -313,6 +303,9 @@ private fun PermissionLayout(viewModel: MainViewModel) {
             )
             CommonSpace(height = 24.dp)
             ShimmerButton(
+                Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
                 text = stringResource(R.string.allow)
             ) {
                 viewModel.navigateToManageStorageSetting(context)
@@ -367,6 +360,9 @@ private fun PermissionLayout(viewModel: MainViewModel) {
             }
             CommonSpace(height = 24.dp)
             ShimmerButton(
+                Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
                 text = stringResource(R.string.allow)
             ) {
                 viewModel.navigateToManageStorageSetting(context)

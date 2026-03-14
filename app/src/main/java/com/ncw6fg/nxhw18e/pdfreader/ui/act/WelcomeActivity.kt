@@ -1,12 +1,15 @@
 package com.ncw6fg.nxhw18e.pdfreader.ui.act
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
+import com.ncw6fg.nxhw18e.pdfreader.money.ActivityUtil
+import com.ncw6fg.nxhw18e.pdfreader.money.AnalysisUtils
 import com.ncw6fg.nxhw18e.pdfreader.ui.screen.WelcomeScreen
 import com.ncw6fg.nxhw18e.pdfreader.ui.theme.PDFReaderTheme
+import com.ncw6fg.nxhw18e.pdfreader.ui.vm.SimpleViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 /**
@@ -21,13 +24,16 @@ class WelcomeActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             PDFReaderTheme {
-                WelcomeScreen(
-                    startToMain = {
-                        startActivity(Intent(this, MainActivity::class.java))
-                        finish()
-                    }
-                )
+                WelcomeScreen()
             }
+        }
+        val simpleViewModel by viewModels<SimpleViewModel>()
+        simpleViewModel.showAD(
+            this,
+            AnalysisUtils.FROM_SPLASH_INTER,
+            10000L
+        ) {
+            ActivityUtil.startToMain(this)
         }
     }
 }

@@ -1,0 +1,84 @@
+{
+  "countries": [
+    {
+      "name": "Armenia",
+      "alpha-2": "AM",
+      "country-code": "051"
+    },
+    {
+      "name": "Australia",
+      "alpha-2": "AU",
+      "country-code": "036"
+    },
+    {
+      "name": "Canada",
+      "alpha-2": "CA",
+      "country-code": "124"
+    },
+    {
+      "name": "China",
+      "alpha-2": "CN",
+      "country-code": "156"
+    },
+    {
+      "name": "Egypt",
+      "alpha-2": "EG",
+      "country-code": "818"
+    },
+    {
+      "name": "France",
+      "alpha-2": "FR",
+      "country-code": "250"
+    },
+    {
+      "name": "Germany",
+      "alpha-2": "DE",
+      "country-code": "276"
+    },
+    {
+      "name": "Hong Kong",
+      "alpha-2": "HK",
+      "country-code": "344"
+    },
+    {
+      "name": "India",
+      "alpha-2": "IN",
+      "country-code": "356"
+    },
+    {
+      "name": "Japan",
+      "alpha-2": "JP",
+      "country-code": "392"
+    },
+    {
+      "name": "Mexico",
+      "alpha-2": "MX",
+      "country-code": "484"
+    },
+    {
+      "name": "Italy",
+      "alpha-2": "IT",
+      "country-code": "380"
+    },
+    {
+      "name": "Taiwan, Province of China",
+      "alpha-2": "TW",
+      "country-code": "158"
+    },
+    {
+      "name": "United Kingdom",
+      "alpha-2": "en-GB",
+      "country-code": "826"
+    },
+    {
+      "name": "United States",
+      "alpha-2": "en-US",
+      "country-code": "840"
+    },
+    {
+      "name": "Russian",
+      "alpha-2": "RU",
+      "country-code": "643"
+    }
+  ]
+}

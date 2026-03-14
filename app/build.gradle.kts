@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.devtools.ksp)
     alias(libs.plugins.dagger.hilt.android)
+    id("com.google.gms.google-services")
 }
 
 val keystoreProperties = Properties().apply {
@@ -90,6 +91,24 @@ dependencies {
     ksp(libs.androidx.room.compiler)
 
     implementation(libs.androidx.work.ktx)
+
+
+    implementation(platform("com.google.firebase:firebase-bom:34.10.0"))
+    implementation("com.google.firebase:firebase-analytics")
+    // implementation("com.google.firebase:firebase-config-ktx")
+    // implementation ("com.google.firebase:firebase-messaging-ktx")
+    //AD
+    implementation("com.google.android.gms:play-services-ads:25.0.0")
+    implementation("com.google.ads.mediation:applovin:13.5.1.0")
+    implementation("com.google.ads.mediation:vungle:7.7.1.0")
+    implementation("com.google.ads.mediation:facebook:6.21.0.1")
+    implementation("com.google.ads.mediation:mintegral:17.0.91.0")
+    implementation("com.google.ads.mediation:pangle:7.9.1.0.0")
+    //fb
+    implementation ("com.facebook.android:facebook-android-sdk:18.1.3")
+    //installer
+    implementation("com.android.installreferrer:installreferrer:2.2")
+    implementation("androidx.constraintlayout:constraintlayout:2.2.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

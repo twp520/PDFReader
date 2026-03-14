@@ -1,5 +1,6 @@
 package com.ncw6fg.nxhw18e.pdfreader.ui.screen
 
+import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -16,10 +17,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.ncw6fg.nxhw18e.pdfreader.money.AnalysisUtils
+import com.ncw6fg.nxhw18e.pdfreader.ui.theme.AdDialog
 import com.ncw6fg.nxhw18e.pdfreader.ui.theme.CommonTopBar
+import com.ncw6fg.nxhw18e.pdfreader.ui.vm.SimpleViewModel
 import java.io.File
 
 @Composable
@@ -29,6 +35,9 @@ fun ImagePreviewScreen(
     goBack: () -> Unit
 ) {
     val isFullScreen = remember { mutableStateOf(false) }
+    val simpleViewModel = viewModel<SimpleViewModel>()
+    val showAd = simpleViewModel.showAdLoading.collectAsStateWithLifecycle()
+    val activity = LocalActivity.current
     Scaffold(
         containerColor = Color.Black, // 图片预览通常背景为黑
         topBar = {
@@ -39,7 +48,15 @@ fun ImagePreviewScreen(
                 exit = shrinkVertically()
             ) {
                 // 这里使用你项目中已有的 CommonTopBar
-                CommonTopBar(title = fileName, goBack = goBack)
+                CommonTopBar(title = fileName, goBack = {
+                    activity?.let {
+                        simpleViewModel.showAD(
+                            it,
+                            AnalysisUtils.FROM_BACK_INTER,
+                            finish = goBack
+                        )
+                    }
+                })
             }
         }
     ) { padding ->
@@ -62,6 +79,9 @@ fun ImagePreviewScreen(
                 modifier = Modifier
                     .fillMaxSize()
             )
+        }
+        if (showAd.value) {
+            AdDialog()
         }
     }
 }

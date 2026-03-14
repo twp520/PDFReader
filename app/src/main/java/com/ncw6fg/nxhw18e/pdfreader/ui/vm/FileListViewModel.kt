@@ -7,7 +7,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ncw6fg.nxhw18e.pdfreader.data.DocFile
 import com.ncw6fg.nxhw18e.pdfreader.data.EXTRA_PATH
+import com.ncw6fg.nxhw18e.pdfreader.data.findActivity
 import com.ncw6fg.nxhw18e.pdfreader.data.util.PDFileUtil
+import com.ncw6fg.nxhw18e.pdfreader.money.AnalysisUtils
+import com.ncw6fg.nxhw18e.pdfreader.money.InterAdLoader
 import com.ncw6fg.nxhw18e.pdfreader.repo.DocRepository
 import com.ncw6fg.nxhw18e.pdfreader.ui.act.ImagePreviewActivity
 import com.ncw6fg.nxhw18e.pdfreader.ui.act.PDFPreviewActivity
@@ -16,6 +19,7 @@ import com.ncw6fg.nxhw18e.pdfreader.ui.bean.DocumentType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -29,7 +33,8 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class FileListViewModel @Inject constructor(
-    private val docRepository: DocRepository
+    private val docRepository: DocRepository,
+    private val interAdLoader: InterAdLoader
 ) : ViewModel() {
 
     private val _selectedType = MutableStateFlow<DocumentType?>(null)
@@ -60,6 +65,9 @@ class FileListViewModel @Inject constructor(
         SharingStarted.WhileSubscribed(5000L),
         emptyList()
     )
+
+    private val _showAdLoading = MutableStateFlow(false)
+    val showAdLoading = _showAdLoading.asStateFlow()
 
 
     // Keep a thin imperative refresh API for callers
@@ -112,6 +120,25 @@ class FileListViewModel @Inject constructor(
     }
 
     fun preview(context: Context, item: DocFile) {
+        viewModelScope.launch {
+            context.findActivity()?.let { act ->
+                interAdLoader.show(
+                    act,
+                    AnalysisUtils.FROM_FILE_ITEM_INTER,
+                    setupLoading = {
+                        _showAdLoading.value = it
+                    },
+                    onFinish = {
+                        internalPreview(item, context)
+                    })
+            }
+        }
+    }
+
+    private fun internalPreview(
+        item: DocFile,
+        context: Context
+    ) {
         when (item.mimeType) {
             DocumentType.PDF -> {
                 context.startActivity(Intent(context, PDFPreviewActivity::class.java).apply {

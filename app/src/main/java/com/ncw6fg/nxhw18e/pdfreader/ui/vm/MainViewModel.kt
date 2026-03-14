@@ -1,5 +1,6 @@
 package com.ncw6fg.nxhw18e.pdfreader.ui.vm
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -8,9 +9,18 @@ import android.provider.Settings
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.ads.nativead.NativeAd
 import com.ncw6fg.nxhw18e.pdfreader.R
+import com.ncw6fg.nxhw18e.pdfreader.data.EXTRA_IS_ALL
+import com.ncw6fg.nxhw18e.pdfreader.data.EXTRA_IS_BOOKMARK
+import com.ncw6fg.nxhw18e.pdfreader.data.EXTRA_TITLE
+import com.ncw6fg.nxhw18e.pdfreader.data.EXTRA_TYPE
 import com.ncw6fg.nxhw18e.pdfreader.data.REFRESH_INTERVAL
+import com.ncw6fg.nxhw18e.pdfreader.money.AnalysisUtils
+import com.ncw6fg.nxhw18e.pdfreader.money.InterAdLoader
+import com.ncw6fg.nxhw18e.pdfreader.money.NativeLoader
 import com.ncw6fg.nxhw18e.pdfreader.repo.DocRepository
+import com.ncw6fg.nxhw18e.pdfreader.ui.act.FilesListActivity
 import com.ncw6fg.nxhw18e.pdfreader.ui.bean.DocumentGridItemState
 import com.ncw6fg.nxhw18e.pdfreader.ui.bean.DocumentType
 import com.ncw6fg.nxhw18e.pdfreader.ui.theme.colorMainGridExcel
@@ -20,6 +30,7 @@ import com.ncw6fg.nxhw18e.pdfreader.ui.theme.colorMainGridPdf
 import com.ncw6fg.nxhw18e.pdfreader.ui.theme.colorMainGridTXT
 import com.ncw6fg.nxhw18e.pdfreader.ui.theme.colorMainGridWord
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -35,7 +46,9 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val docRepository: DocRepository
+    @param:ApplicationContext private val appContext: Context,
+    private val docRepository: DocRepository,
+    private val interAdLoader: InterAdLoader
 ) : ViewModel() {
     private var _isPermissionGranted = MutableStateFlow(hasAllFilesAccess())
     val isPermissionGranted = _isPermissionGranted.asStateFlow()
@@ -43,14 +56,24 @@ class MainViewModel @Inject constructor(
     // 记录上次刷新时间
     private var lastRefreshTime: Long = 0
     val bookmarkFiles = docRepository.bookmarkFiles.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5000L),
-        emptyList()
+        viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList()
     )
     val allFiles = docRepository.allDocFiles
 
     val isLoading = allFiles.map { it.isEmpty() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), true)
+
+    private val _showAdLoading = MutableStateFlow(false)
+    val showAdLoading = _showAdLoading.asStateFlow()
+
+    private val nativeAdLoader = NativeLoader(
+        appContext,
+        scope = viewModelScope,
+        from = AnalysisUtils.FROM_MAIN_NATIVE,
+    )
+
+    private val _nativeAd = MutableStateFlow<NativeAd?>(null)
+    val nativeAd = _nativeAd.asStateFlow()
 
     fun checkPermission() {
         _isPermissionGranted.value = hasAllFilesAccess()
@@ -115,6 +138,10 @@ class MainViewModel @Inject constructor(
                 gridItems.update { newList }
             }
         }
+        interAdLoader.fillCache()
+        nativeAdLoader.refreshAd {
+            _nativeAd.value = it
+        }
     }
 
     fun refreshFiles() {
@@ -147,4 +174,82 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun onGridAllClicked(
+        activity: Activity,
+    ) {
+        viewModelScope.launch {
+            interAdLoader.show(
+                activity,
+                from = AnalysisUtils.FROM_MAIN_BUTTON_INTER,
+                setupLoading = {
+                    _showAdLoading.value = it
+                },
+                onFinish = {
+                    activity.startActivity(
+                        Intent(
+                            activity, FilesListActivity::class.java
+                        ).apply {
+                            putExtra(EXTRA_IS_ALL, true)
+                            putExtra(EXTRA_TITLE, activity.getString(R.string.main_item_all))
+                        })
+                })
+        }
+    }
+
+    fun onGridBookmarkClicked(activity: Activity) {
+        viewModelScope.launch {
+            interAdLoader.show(
+                activity,
+                from = AnalysisUtils.FROM_MAIN_BUTTON_INTER,
+                setupLoading = {
+                    _showAdLoading.value = it
+                },
+                onFinish = {
+                    activity.startActivity(
+                        Intent(
+                            activity,
+                            FilesListActivity::class.java
+                        ).apply {
+                            putExtra(EXTRA_IS_BOOKMARK, true)
+                            putExtra(
+                                EXTRA_TITLE,
+                                activity.getString(R.string.main_item_bookmark)
+                            )
+                        }
+                    )
+                })
+        }
+    }
+
+    fun onGridItemClicked(
+        activity: Activity,
+        type: DocumentType,
+        title: String
+    ) {
+
+        viewModelScope.launch {
+            interAdLoader.show(
+                activity,
+                from = AnalysisUtils.FROM_MAIN_BUTTON_INTER,
+                setupLoading = {
+                    _showAdLoading.value = it
+                },
+                onFinish = {
+                    activity.startActivity(
+                        Intent(
+                            activity,
+                            FilesListActivity::class.java
+                        ).apply {
+                            putExtra(EXTRA_TYPE, type)
+                            putExtra(EXTRA_TITLE, title)
+                        }
+                    )
+                })
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        nativeAdLoader.destroy()
+    }
 }

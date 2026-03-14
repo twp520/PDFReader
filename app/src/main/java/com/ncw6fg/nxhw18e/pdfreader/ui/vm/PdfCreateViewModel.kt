@@ -6,7 +6,10 @@ import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ncw6fg.nxhw18e.pdfreader.R
+import com.ncw6fg.nxhw18e.pdfreader.data.findActivity
 import com.ncw6fg.nxhw18e.pdfreader.data.util.PDFileUtil
+import com.ncw6fg.nxhw18e.pdfreader.money.AnalysisUtils
+import com.ncw6fg.nxhw18e.pdfreader.money.InterAdLoader
 import com.ncw6fg.nxhw18e.pdfreader.repo.PdfCreateRepository
 import com.ncw6fg.nxhw18e.pdfreader.ui.bean.PdfCreateUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,7 +26,8 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class PdfCreateViewModel @Inject constructor(
-    private val pdfCreateRepository: PdfCreateRepository
+    private val pdfCreateRepository: PdfCreateRepository,
+    private val interAdLoader: InterAdLoader
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PdfCreateUiState())
@@ -79,7 +83,17 @@ class PdfCreateViewModel @Inject constructor(
                 }
             )
 
-            _uiState.update { it.copy(isGenerating = false) }
+            context.findActivity()?.let { act ->
+                interAdLoader.show(
+                    act,
+                    AnalysisUtils.FROM_CREATED_INTER,
+                    setupLoading = {
+
+                    },
+                    onFinish = {
+                        _uiState.update { it.copy(isGenerating = false) }
+                    })
+            }
             if (success) {
                 PDFileUtil.shareFile(context, File(outputPath))
             } else {
