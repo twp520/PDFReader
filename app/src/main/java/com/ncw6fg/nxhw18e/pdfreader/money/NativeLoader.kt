@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
  */
 class NativeLoader(
     private val context: Context,
-    private val id: String = context.getString(R.string.native_test),
+    private val id: String,
     private val scope: CoroutineScope,
     private val from: String,
     private val needRefresh: Boolean = true,

@@ -9,7 +9,9 @@ import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
-import com.ncw6fg.nxhw18e.pdfreader.R
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,21 +19,19 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withTimeoutOrNull
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * create by colin 
  * 2026/3/7
  */
 
-@Singleton
-class InterAdLoader @Inject constructor(
+class InterAdLoader @AssistedInject constructor(
     @param:ApplicationContext private val context: Context,
-    private val installManager: InstallManager
+    private val installManager: InstallManager,
+    @Assisted private val adUnitId: String
 ) {
     private val adPool = mutableListOf<InterstitialAd>()
-    private val maxCacheSize = 5 // 最大缓存数量
+    private val maxCacheSize = 2 // 最大缓存数量
     private var isRefreshing = false
 
     // 广告加载状态的信号（用于通知等待中的协程）
@@ -56,9 +56,7 @@ class InterAdLoader @Inject constructor(
         Log.d("Money", "loadNextAd: current size: ${adPool.size}")
         val adRequest = AdRequest.Builder().build()
         InterstitialAd.load(
-            context, context.getString(
-                R.string.inter_test
-            ), adRequest, object : InterstitialAdLoadCallback() {
+            context, adUnitId, adRequest, object : InterstitialAdLoadCallback() {
                 override fun onAdLoaded(ad: InterstitialAd) {
                     Log.d("Money", "onAdLoaded: ")
                     adPool.add(ad)
@@ -143,7 +141,7 @@ class InterAdLoader @Inject constructor(
                 ad = popAd()
                 Log.d("Money", "show: get ad loaded: ${ad != null}")
                 val duration = System.currentTimeMillis() - startTime
-                if (duration < 1000) delay(1000 - duration)
+                if (duration < 3000) delay(3000 - duration)
                 return@withTimeoutOrNull ad
             }
             setupLoading(false)
@@ -162,5 +160,8 @@ class InterAdLoader @Inject constructor(
         }
     }
 
-    fun hasCache(): Boolean = adPool.isNotEmpty()
+    @AssistedFactory
+    interface Factory {
+        fun create(adUnitId: String): InterAdLoader
+    }
 }

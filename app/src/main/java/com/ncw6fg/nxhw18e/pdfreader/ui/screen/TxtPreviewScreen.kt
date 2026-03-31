@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.ncw6fg.nxhw18e.pdfreader.R
 import com.ncw6fg.nxhw18e.pdfreader.money.AnalysisUtils
 import com.ncw6fg.nxhw18e.pdfreader.ui.theme.AdDialog
 import com.ncw6fg.nxhw18e.pdfreader.ui.theme.CommonTopBar
@@ -55,6 +56,7 @@ fun TxtPreviewScreen(
                 activity?.let {
                     simpleViewModel.showAD(
                         it,
+                        it.getString(R.string.back_inter),
                         AnalysisUtils.FROM_BACK_INTER,
                         finish = goBack
                     )

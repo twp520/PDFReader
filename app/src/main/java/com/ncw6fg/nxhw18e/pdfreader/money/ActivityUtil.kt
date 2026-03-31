@@ -4,6 +4,8 @@ import android.app.Activity
 import android.app.Application
 import android.content.Intent
 import android.os.Bundle
+import com.google.firebase.Firebase
+import com.google.firebase.remoteconfig.remoteConfig
 import com.ncw6fg.nxhw18e.pdfreader.ui.act.MainActivity
 import com.ncw6fg.nxhw18e.pdfreader.ui.act.WelcomeActivity
 
@@ -62,7 +64,9 @@ object ActivityUtil {
 
     fun startToMain(activity: Activity) {
         if (!mainLaunch) {
-            activity.startActivity(Intent(activity, LanguageActivity::class.java).apply {
+            val showLanguage = Firebase.remoteConfig.getBoolean("showLanguage")
+            val cls = if (showLanguage) LanguageActivity::class.java else GuideActivity::class.java
+            activity.startActivity(Intent(activity, cls).apply {
                 putExtra("cold_start", true)
             })
         }

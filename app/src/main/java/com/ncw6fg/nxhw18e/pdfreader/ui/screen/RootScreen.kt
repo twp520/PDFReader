@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,6 +34,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -47,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ncw6fg.nxhw18e.pdfreader.R
 import com.ncw6fg.nxhw18e.pdfreader.data.findActivity
+import com.ncw6fg.nxhw18e.pdfreader.money.AnalysisUtils
 import com.ncw6fg.nxhw18e.pdfreader.money.DisplaySmallNativeAdView
 import com.ncw6fg.nxhw18e.pdfreader.ui.act.CreatePdfActivity
 import com.ncw6fg.nxhw18e.pdfreader.ui.act.SearchActivity
@@ -69,10 +72,11 @@ import com.ncw6fg.nxhw18e.pdfreader.ui.vm.MainViewModel
 fun RootScreen(viewModel: MainViewModel) {
     val loadingState = viewModel.isLoading.collectAsStateWithLifecycle()
     val isPermissionGranted = viewModel.isPermissionGranted.collectAsStateWithLifecycle()
+    val isShowPermission = viewModel.showPermission.collectAsStateWithLifecycle()
     val sheetState = rememberModalBottomSheetState(
         confirmValueChange = {
             // 返回 false 表示拦截所有滑动关闭手势，使用户无法通过下滑关闭
-            false
+            viewModel.isRunB()
         },
         skipPartiallyExpanded = true // 直接全展开
     )
@@ -128,15 +132,15 @@ fun RootScreen(viewModel: MainViewModel) {
                         DisplaySmallNativeAdView(ad)
                     }
                 }
-                if (!isPermissionGranted.value) {
+                if (isShowPermission.value || (!isPermissionGranted.value && !viewModel.isRunB())) {
                     ModalBottomSheet(
                         onDismissRequest = {
-                            // 这里留空，点击外部不会消失
+                            viewModel.dismissPermission()
                         },
                         sheetState = sheetState,
-                        // 隐藏顶部的横条（Drag Handle），因为不允许滑动
-                        dragHandle = null,
-                        // 强制占据全宽并增加底部安全间距
+                        dragHandle = if (viewModel.isRunB()) {
+                            { BottomSheetDefaults.DragHandle() }
+                        } else null,
                         containerColor = MaterialTheme.colorScheme.surface,
                     ) {
                         // 放入权限布局
@@ -224,6 +228,9 @@ private fun DocumentGrid(viewModel: MainViewModel) {
 
     if (showAdLoading.value) {
         AdDialog()
+    }
+    LaunchedEffect(Unit) {
+        AnalysisUtils.logEvent(AnalysisUtils.SCREEN_SHOW_MAIN)
     }
 }
 

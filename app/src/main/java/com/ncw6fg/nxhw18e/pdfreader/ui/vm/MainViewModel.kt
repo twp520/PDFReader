@@ -17,6 +17,7 @@ import com.ncw6fg.nxhw18e.pdfreader.data.EXTRA_TITLE
 import com.ncw6fg.nxhw18e.pdfreader.data.EXTRA_TYPE
 import com.ncw6fg.nxhw18e.pdfreader.data.REFRESH_INTERVAL
 import com.ncw6fg.nxhw18e.pdfreader.money.AnalysisUtils
+import com.ncw6fg.nxhw18e.pdfreader.money.InstallManager
 import com.ncw6fg.nxhw18e.pdfreader.money.InterAdLoader
 import com.ncw6fg.nxhw18e.pdfreader.money.NativeLoader
 import com.ncw6fg.nxhw18e.pdfreader.repo.DocRepository
@@ -48,10 +49,14 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     @param:ApplicationContext private val appContext: Context,
     private val docRepository: DocRepository,
-    private val interAdLoader: InterAdLoader
+    private val installManager: InstallManager,
+    interAdFactory: InterAdLoader.Factory
 ) : ViewModel() {
     private var _isPermissionGranted = MutableStateFlow(hasAllFilesAccess())
     val isPermissionGranted = _isPermissionGranted.asStateFlow()
+
+    private val isShowPermission = MutableStateFlow(false)
+    val showPermission = isShowPermission.asStateFlow()
 
     // 记录上次刷新时间
     private var lastRefreshTime: Long = 0
@@ -70,8 +75,10 @@ class MainViewModel @Inject constructor(
         appContext,
         scope = viewModelScope,
         from = AnalysisUtils.FROM_MAIN_NATIVE,
+        id = appContext.getString(R.string.home_native)
     )
 
+    private val interAdLoader = interAdFactory.create(appContext.getString(R.string.home_inter))
     private val _nativeAd = MutableStateFlow<NativeAd?>(null)
     val nativeAd = _nativeAd.asStateFlow()
 
@@ -177,6 +184,7 @@ class MainViewModel @Inject constructor(
     fun onGridAllClicked(
         activity: Activity,
     ) {
+        AnalysisUtils.logEvent(AnalysisUtils.BUTTON_CLICK_MAIN_ITEM)
         viewModelScope.launch {
             interAdLoader.show(
                 activity,
@@ -197,6 +205,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun onGridBookmarkClicked(activity: Activity) {
+        AnalysisUtils.logEvent(AnalysisUtils.BUTTON_CLICK_MAIN_ITEM)
         viewModelScope.launch {
             interAdLoader.show(
                 activity,
@@ -226,8 +235,8 @@ class MainViewModel @Inject constructor(
         type: DocumentType,
         title: String
     ) {
-
         viewModelScope.launch {
+            AnalysisUtils.logEvent(AnalysisUtils.BUTTON_CLICK_MAIN_ITEM)
             interAdLoader.show(
                 activity,
                 from = AnalysisUtils.FROM_MAIN_BUTTON_INTER,
@@ -235,17 +244,28 @@ class MainViewModel @Inject constructor(
                     _showAdLoading.value = it
                 },
                 onFinish = {
-                    activity.startActivity(
-                        Intent(
-                            activity,
-                            FilesListActivity::class.java
-                        ).apply {
-                            putExtra(EXTRA_TYPE, type)
-                            putExtra(EXTRA_TITLE, title)
-                        }
-                    )
+                    if (isRunB() && !isPermissionGranted.value) {
+                        isShowPermission.value = true
+                    } else {
+                        activity.startActivity(
+                            Intent(
+                                activity,
+                                FilesListActivity::class.java
+                            ).apply {
+                                putExtra(EXTRA_TYPE, type)
+                                putExtra(EXTRA_TITLE, title)
+                            }
+                        )
+                    }
                 })
         }
+    }
+
+    fun isRunB() = installManager.getRunB()
+
+    fun dismissPermission() {
+        if (isRunB())
+            isShowPermission.value = false
     }
 
     override fun onCleared() {

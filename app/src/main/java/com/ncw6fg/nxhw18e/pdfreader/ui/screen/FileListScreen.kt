@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,6 +38,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import com.ncw6fg.nxhw18e.pdfreader.R
 import com.ncw6fg.nxhw18e.pdfreader.data.DocFile
+import com.ncw6fg.nxhw18e.pdfreader.money.AnalysisUtils
 import com.ncw6fg.nxhw18e.pdfreader.ui.bean.DocumentType
 import com.ncw6fg.nxhw18e.pdfreader.ui.theme.AdDialog
 import com.ncw6fg.nxhw18e.pdfreader.ui.theme.CommonTopBar
@@ -71,6 +73,10 @@ fun FileListScreen(
     }
     if (showAdLoading.value) {
         AdDialog()
+    }
+
+    LaunchedEffect(Unit) {
+        AnalysisUtils.logEvent(AnalysisUtils.SCREEN_SHOW_FILE_LIST)
     }
 }
 

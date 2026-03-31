@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import com.ncw6fg.nxhw18e.pdfreader.R
 import com.ncw6fg.nxhw18e.pdfreader.money.ActivityUtil
 import com.ncw6fg.nxhw18e.pdfreader.money.AnalysisUtils
 import com.ncw6fg.nxhw18e.pdfreader.ui.screen.WelcomeScreen
@@ -30,6 +31,7 @@ class WelcomeActivity : ComponentActivity() {
         val simpleViewModel by viewModels<SimpleViewModel>()
         simpleViewModel.showAD(
             this,
+            getString(R.string.loading_inter),
             AnalysisUtils.FROM_SPLASH_INTER,
             10000L
         ) {

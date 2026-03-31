@@ -8,6 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -15,6 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.ncw6fg.nxhw18e.pdfreader.R
+import com.ncw6fg.nxhw18e.pdfreader.money.AnalysisUtils
 import com.ncw6fg.nxhw18e.pdfreader.ui.theme.CommonSpace
 import com.ncw6fg.nxhw18e.pdfreader.ui.theme.fillMax
 
@@ -25,7 +27,6 @@ import com.ncw6fg.nxhw18e.pdfreader.ui.theme.fillMax
 
 @Composable
 fun WelcomeScreen() {
-
     Surface(modifier = fillMax) {
         Column(modifier = fillMax, horizontalAlignment = Alignment.CenterHorizontally) {
 
@@ -56,5 +57,8 @@ fun WelcomeScreen() {
             )
         }
 
+    }
+    LaunchedEffect(Unit) {
+        AnalysisUtils.logEvent(AnalysisUtils.SCREEN_SHOW_SPLASH)
     }
 }

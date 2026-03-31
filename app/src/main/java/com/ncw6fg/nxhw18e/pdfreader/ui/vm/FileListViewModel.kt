@@ -5,6 +5,7 @@ import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ncw6fg.nxhw18e.pdfreader.R
 import com.ncw6fg.nxhw18e.pdfreader.data.DocFile
 import com.ncw6fg.nxhw18e.pdfreader.data.EXTRA_PATH
 import com.ncw6fg.nxhw18e.pdfreader.data.findActivity
@@ -17,6 +18,7 @@ import com.ncw6fg.nxhw18e.pdfreader.ui.act.PDFPreviewActivity
 import com.ncw6fg.nxhw18e.pdfreader.ui.act.TxtPreviewActivity
 import com.ncw6fg.nxhw18e.pdfreader.ui.bean.DocumentType
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,8 +35,9 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class FileListViewModel @Inject constructor(
+    @ApplicationContext appContext: Context,
     private val docRepository: DocRepository,
-    private val interAdLoader: InterAdLoader
+    interAdFactory: InterAdLoader.Factory
 ) : ViewModel() {
 
     private val _selectedType = MutableStateFlow<DocumentType?>(null)
@@ -69,6 +72,7 @@ class FileListViewModel @Inject constructor(
     private val _showAdLoading = MutableStateFlow(false)
     val showAdLoading = _showAdLoading.asStateFlow()
 
+    private val interAdLoader = interAdFactory.create(appContext.getString(R.string.home_inter))
 
     // Keep a thin imperative refresh API for callers
     fun refreshFilesFromType(
@@ -120,6 +124,7 @@ class FileListViewModel @Inject constructor(
     }
 
     fun preview(context: Context, item: DocFile) {
+        AnalysisUtils.logEvent(AnalysisUtils.BUTTON_CLICK_FILE_ITEM)
         viewModelScope.launch {
             context.findActivity()?.let { act ->
                 interAdLoader.show(

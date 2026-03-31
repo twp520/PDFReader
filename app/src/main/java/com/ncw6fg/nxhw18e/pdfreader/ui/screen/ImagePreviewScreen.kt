@@ -17,11 +17,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.ncw6fg.nxhw18e.pdfreader.R
 import com.ncw6fg.nxhw18e.pdfreader.money.AnalysisUtils
 import com.ncw6fg.nxhw18e.pdfreader.ui.theme.AdDialog
 import com.ncw6fg.nxhw18e.pdfreader.ui.theme.CommonTopBar
@@ -52,6 +54,7 @@ fun ImagePreviewScreen(
                     activity?.let {
                         simpleViewModel.showAD(
                             it,
+                            it.getString(R.string.back_inter),
                             AnalysisUtils.FROM_BACK_INTER,
                             finish = goBack
                         )

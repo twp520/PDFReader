@@ -16,20 +16,26 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class SimpleViewModel @Inject constructor(
-    private val interAdLoader: InterAdLoader,
+    private val interAdFactory: InterAdLoader.Factory,
 ) : ViewModel() {
 
     private val _showAdLoading = MutableStateFlow(false)
     val showAdLoading = _showAdLoading.asStateFlow()
 
+    private var interAdLoader: InterAdLoader? = null
+
     fun showAD(
         activity: Activity,
+        id: String,
         from: String,
         timeout: Long = 5000,
         finish: () -> Unit
     ) {
+        val loader = interAdLoader ?: interAdFactory.create(id).also {
+            interAdLoader = it
+        }
         viewModelScope.launch {
-            interAdLoader.show(
+            loader.show(
                 activity,
                 from,
                 timeout,

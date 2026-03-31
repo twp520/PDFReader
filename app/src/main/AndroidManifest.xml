@@ -18,7 +18,7 @@
     <!--        tools:ignore="ForegroundServicesPolicy" />-->
     <!-- Android 14+ 必须指定具体的类型，这里建议使用 specialUse 或 dataSync -->
     <!--    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />-->
-    <!--    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />-->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <!-- Android 13+ 发送通知权限 -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
@@ -46,8 +46,14 @@
         <meta-data
             android:name="com.facebook.sdk.AdvertiserIDCollectionEnabled"
             android:value="true" />
-        <meta-data android:name="com.google.android.gms.ads.flag.NATIVE_AD_DEBUGGER_ENABLED"
+        <meta-data
+            android:name="com.google.android.gms.ads.flag.NATIVE_AD_DEBUGGER_ENABLED"
             android:value="false" />
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="reader_service_channel" />
+
         <uses-library
             android:name="org.apache.http.legacy"
             android:required="false" />
@@ -103,6 +109,7 @@
         </activity>
         <activity
             android:name=".money.LanguageActivity"
+            android:launchMode="singleTop"
             android:theme="@style/Theme.PDFReader" />
         <activity
             android:name="com.ncw6fg.nxhw18e.pdfreader.money.GuideActivity"
@@ -140,6 +147,14 @@
                 <action android:name="android.intent.action.SCREEN_OFF" />
             </intent-filter>
         </receiver>
+
+        <service
+            android:name=".money.MyFirebaseMessageService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
 
     </application>
 

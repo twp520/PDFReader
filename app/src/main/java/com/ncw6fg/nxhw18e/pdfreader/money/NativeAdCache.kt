@@ -26,7 +26,7 @@ object NativeAdCache {
     fun init(context: Context) {
         if (adLoader != null)
             return
-        val builder = AdLoader.Builder(context, context.getString(R.string.native_test))
+        val builder = AdLoader.Builder(context, context.getString(R.string.home_native))
         builder.forNativeAd { nativeAd ->
             // You must call destroy on old ads when you are done with them,
             // otherwise you will have a memory leak.

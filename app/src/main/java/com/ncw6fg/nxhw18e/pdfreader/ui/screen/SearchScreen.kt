@@ -61,6 +61,7 @@ fun SearchScreen(back: () -> Unit, searchViewModel: SearchViewModel = viewModel(
                     activity?.let {
                         simpleViewModel.showAD(
                             it,
+                            it.getString(R.string.back_inter),
                             AnalysisUtils.FROM_BACK_INTER,
                             finish = back
                         )

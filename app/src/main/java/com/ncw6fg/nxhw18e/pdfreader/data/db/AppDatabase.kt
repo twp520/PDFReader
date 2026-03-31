@@ -9,7 +9,7 @@ import com.ncw6fg.nxhw18e.pdfreader.data.db.FileMetadataDao
  * create by colin
  * 2026/2/19
  */
-@Database(entities = [FileMetadata::class], version = 1)
+@Database(entities = [FileMetadata::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun fileMetadataDao(): FileMetadataDao

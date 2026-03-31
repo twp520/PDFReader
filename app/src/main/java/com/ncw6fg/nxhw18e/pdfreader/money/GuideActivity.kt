@@ -24,6 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -59,9 +60,10 @@ class GuideActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val nativeLoader = NativeLoader(
-            this,
+            context = this,
             scope = lifecycleScope,
-            from = AnalysisUtils.FROM_GUIDE_NATIVE
+            from = AnalysisUtils.FROM_GUIDE_NATIVE,
+            id = getString(R.string.guide_native)
         )
         enableEdgeToEdge()
         setContent {
@@ -80,6 +82,7 @@ class GuideActivity : ComponentActivity() {
                 ) {
                     simpleViewModel.showAD(
                         this,
+                        getString(R.string.guide_inter),
                         AnalysisUtils.FROM_GUIDE_INTER
                     ) {
                         gogogo()
@@ -176,6 +179,7 @@ fun GuideScreen(
                     ) {
                         if (isLast) {
                             navToMain.invoke()
+                            AnalysisUtils.logEvent(AnalysisUtils.BUTTON_CLICK_GUIDE)
                         } else {
                             currentIndex.intValue += 1
                         }
@@ -188,5 +192,8 @@ fun GuideScreen(
             }
 
         }
+    }
+    LaunchedEffect(Unit) {
+        AnalysisUtils.logEvent(AnalysisUtils.SCREEN_SHOW_GUIDE)
     }
 }

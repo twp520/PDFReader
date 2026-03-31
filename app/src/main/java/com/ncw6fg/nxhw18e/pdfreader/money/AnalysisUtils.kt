@@ -35,6 +35,18 @@ object AnalysisUtils {
     private var fbSumToValue = 0.0
     private val fbLogger = AppEventsLogger.newLogger(PDRApplication.appContext)
 
+    const val SCREEN_SHOW_SPLASH = "screen_show_splash"
+    const val SCREEN_SHOW_LANGUAGE = "screen_show_language"
+    const val SCREEN_SHOW_GUIDE = "screen_show_guide"
+    const val SCREEN_SHOW_MAIN = "screen_show_main"
+    const val SCREEN_SHOW_FILE_LIST = "screen_show_file_list"
+    const val SCREEN_SHOW_PDF_PREVIEW = "screen_show_pdf_preview"
+
+    const val BUTTON_CLICK_LANGUAGE = "button_click_language"
+    const val BUTTON_CLICK_GUIDE = "button_click_guide"
+    const val BUTTON_CLICK_MAIN_ITEM = "button_click_main_item"
+    const val BUTTON_CLICK_FILE_ITEM = "button_click_file_item"
+
     fun logEvent(event: String, args: Bundle = Bundle.EMPTY) {
         val params = Bundle()
         // params.putBoolean("isRunB", InstallManager.getRunB())

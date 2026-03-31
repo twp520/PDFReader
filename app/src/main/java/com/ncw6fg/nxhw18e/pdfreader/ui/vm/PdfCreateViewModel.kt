@@ -13,6 +13,7 @@ import com.ncw6fg.nxhw18e.pdfreader.money.InterAdLoader
 import com.ncw6fg.nxhw18e.pdfreader.repo.PdfCreateRepository
 import com.ncw6fg.nxhw18e.pdfreader.ui.bean.PdfCreateUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -26,12 +27,15 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class PdfCreateViewModel @Inject constructor(
+    @ApplicationContext appContext: Context,
     private val pdfCreateRepository: PdfCreateRepository,
-    private val interAdLoader: InterAdLoader
+    interAdFactory: InterAdLoader.Factory
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PdfCreateUiState())
     val uiState = _uiState.asStateFlow()
+
+    private val interAdLoader = interAdFactory.create(appContext.getString(R.string.home_inter))
 
     // 更新文件名
     fun updateFileName(newName: String) {

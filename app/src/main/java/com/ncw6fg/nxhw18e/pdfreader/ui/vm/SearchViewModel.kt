@@ -18,7 +18,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
-    private val docRepository: DocRepository
+    docRepository: DocRepository
 ) : ViewModel() {
 
     private val _searchKeyword = MutableStateFlow("")

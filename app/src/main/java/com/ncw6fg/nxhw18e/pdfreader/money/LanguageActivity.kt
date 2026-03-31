@@ -26,6 +26,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,9 +66,10 @@ class LanguageActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val nativeLoader = NativeLoader(
-            this,
+            context = this,
             scope = lifecycleScope,
-            from = AnalysisUtils.FROM_LANGUAGE_NATIVE
+            from = AnalysisUtils.FROM_LANGUAGE_NATIVE,
+            id = getString(R.string.language_native)
         )
         enableEdgeToEdge()
         setContent {
@@ -82,6 +84,7 @@ class LanguageActivity : ComponentActivity() {
                 ) {
                     simpleViewModel.showAD(
                         this,
+                        getString(R.string.language_inter),
                         AnalysisUtils.FROM_LANGUAGE_INTER
                     ) {
                         startGuide()
@@ -207,6 +210,7 @@ fun LanguageScreen(
                     stringResource(R.string.next),
                 ) {
                     navToGuide.invoke()
+                    AnalysisUtils.logEvent(AnalysisUtils.BUTTON_CLICK_LANGUAGE)
                 }
             }
             if (runB && nativeAd != null) {
@@ -215,5 +219,8 @@ fun LanguageScreen(
                 }
             }
         }
+    }
+    LaunchedEffect(Unit) {
+        AnalysisUtils.logEvent(AnalysisUtils.SCREEN_SHOW_LANGUAGE)
     }
 }

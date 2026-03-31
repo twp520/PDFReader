@@ -7,5 +7,5 @@ plugins {
     alias(libs.plugins.dagger.hilt.android) apply false
     // 如果你打算用 KSP 替代 Kapt，也要在这里声明
     alias(libs.plugins.google.devtools.ksp) apply false
-    id("com.google.gms.google-services") version "4.4.2" apply false
+    id("com.google.gms.google-services") version "4.4.4" apply false
 }
