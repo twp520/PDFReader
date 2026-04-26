@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -40,6 +41,10 @@ fun ImagePreviewScreen(
     val simpleViewModel = viewModel<SimpleViewModel>()
     val showAd = simpleViewModel.showAdLoading.collectAsStateWithLifecycle()
     val activity = LocalActivity.current
+    val adId = stringResource(R.string.back_inter)
+    LaunchedEffect(Unit) {
+        simpleViewModel.setup(adId)
+    }
     Scaffold(
         containerColor = Color.Black, // 图片预览通常背景为黑
         topBar = {

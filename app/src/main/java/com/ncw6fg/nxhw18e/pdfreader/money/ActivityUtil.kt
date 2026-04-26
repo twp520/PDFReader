@@ -65,7 +65,13 @@ object ActivityUtil {
     fun startToMain(activity: Activity) {
         if (!mainLaunch) {
             val showLanguage = Firebase.remoteConfig.getBoolean("showLanguage")
-            val cls = if (showLanguage) LanguageActivity::class.java else GuideActivity::class.java
+            val showGuide = Firebase.remoteConfig.getBoolean("showGuide")
+            val cls =
+                when {
+                    showLanguage -> LanguageActivity::class.java
+                    showGuide -> GuideActivity::class.java
+                    else -> MainActivity::class.java
+                }
             activity.startActivity(Intent(activity, cls).apply {
                 putExtra("cold_start", true)
             })

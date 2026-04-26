@@ -18,6 +18,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -47,6 +48,10 @@ fun SearchScreen(back: () -> Unit, searchViewModel: SearchViewModel = viewModel(
     val simpleViewModel = viewModel<SimpleViewModel>()
     val showAd = simpleViewModel.showAdLoading.collectAsStateWithLifecycle()
     val activity = LocalActivity.current
+    val adId = stringResource(R.string.back_inter)
+    LaunchedEffect(Unit) {
+        simpleViewModel.setup(adId)
+    }
     Scaffold(
         modifier = fillMax,
     ) { innerPadding ->

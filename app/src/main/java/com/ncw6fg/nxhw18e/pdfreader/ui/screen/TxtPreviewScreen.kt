@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -49,6 +50,10 @@ fun TxtPreviewScreen(
     val simpleViewModel = viewModel<SimpleViewModel>()
     val showAd = simpleViewModel.showAdLoading.collectAsStateWithLifecycle()
     val activity = LocalActivity.current
+    val adId = stringResource(R.string.back_inter)
+    LaunchedEffect(Unit) {
+        simpleViewModel.setup(adId)
+    }
     Scaffold(
         topBar = {
             // 使用你项目中已有的 CommonTopBar

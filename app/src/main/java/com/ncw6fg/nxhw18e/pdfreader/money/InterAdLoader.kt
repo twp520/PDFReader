@@ -13,12 +13,15 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * create by colin 
@@ -31,28 +34,30 @@ class InterAdLoader @AssistedInject constructor(
     @Assisted private val adUnitId: String
 ) {
     private val adPool = mutableListOf<InterstitialAd>()
-    private val maxCacheSize = 2 // 最大缓存数量
-    private var isRefreshing = false
+    private val maxCacheSize = 1
+    private var isRefreshing = AtomicBoolean(false)
 
     // 广告加载状态的信号（用于通知等待中的协程）
     private val _adReadyChannel = MutableStateFlow(adPool.size)
     val adReadyChannel = _adReadyChannel.asStateFlow()
 
+    private val scope = MainScope()
+
     /**
      * 填充广告池，直到达到最大缓存数
      */
     fun fillCache() {
-        if (adPool.size >= maxCacheSize || isRefreshing) return
+        if (adPool.size >= maxCacheSize || isRefreshing.get()) return
         loadNextAd()
     }
 
     private fun loadNextAd() {
         if (adPool.size >= maxCacheSize) {
-            isRefreshing = false
+            isRefreshing.set(false)
             return
         }
 
-        isRefreshing = true
+        isRefreshing.set(true)
         Log.d("Money", "loadNextAd: current size: ${adPool.size}")
         val adRequest = AdRequest.Builder().build()
         InterstitialAd.load(
@@ -60,14 +65,17 @@ class InterAdLoader @AssistedInject constructor(
                 override fun onAdLoaded(ad: InterstitialAd) {
                     Log.d("Money", "onAdLoaded: ")
                     adPool.add(ad)
-                    isRefreshing = false
+                    isRefreshing.set(false)
                     _adReadyChannel.update { adPool.size }
                     fillCache()
                 }
 
                 override fun onAdFailedToLoad(error: LoadAdError) {
-                    isRefreshing = false
-                    fillCache()
+                    isRefreshing.set(false)
+                    scope.launch {
+                        delay(5000)
+                        fillCache()
+                    }
                     Log.d("Money", "onAdFailedToLoad: ${error.message}")
                 }
             })
@@ -79,7 +87,7 @@ class InterAdLoader @AssistedInject constructor(
     private fun popAd(): InterstitialAd? {
         val ad = if (adPool.isNotEmpty()) adPool.removeAt(0) else null
         fillCache()
-        return ad
+        return ad?: InterAdCache.peekNativeAd(context)
     }
 
     private fun setupAdCallback(ad: InterstitialAd, from: String, onAdClosed: () -> Unit) {
@@ -135,13 +143,10 @@ class InterAdLoader @AssistedInject constructor(
             fillCache()
             withTimeoutOrNull(timeout) {
                 // 挂起协程，直到 adReadyChannel 发出信号
-                val startTime = System.currentTimeMillis()
                 Log.d("Money", "show: suspend，wait loading")
                 adReadyChannel.first { it > 0 }
                 ad = popAd()
                 Log.d("Money", "show: get ad loaded: ${ad != null}")
-                val duration = System.currentTimeMillis() - startTime
-                if (duration < 3000) delay(3000 - duration)
                 return@withTimeoutOrNull ad
             }
             setupLoading(false)

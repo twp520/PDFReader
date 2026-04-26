@@ -22,6 +22,8 @@ import com.ncw6fg.nxhw18e.pdfreader.data.PdfPageKeyer
 import com.ncw6fg.nxhw18e.pdfreader.data.util.PDFileUtil
 import com.ncw6fg.nxhw18e.pdfreader.money.ActivityUtil
 import com.ncw6fg.nxhw18e.pdfreader.money.InstallManager
+import com.ncw6fg.nxhw18e.pdfreader.money.InterAdCache
+import com.ncw6fg.nxhw18e.pdfreader.money.Money
 import com.ncw6fg.nxhw18e.pdfreader.money.NativeAdCache
 import com.ncw6fg.nxhw18e.pdfreader.receiver.ScreenStateReceiver
 import com.ncw6fg.nxhw18e.pdfreader.service.DocumentReminderWorker
@@ -42,6 +44,9 @@ class PDRApplication : Application() {
 
     @Inject
     lateinit var installManager: InstallManager
+
+    @Inject
+    lateinit var money: Money
 
     override fun onCreate() {
         super.onCreate()
@@ -74,6 +79,9 @@ class PDRApplication : Application() {
                 .build()
         )
         NativeAdCache.init(applicationContext)
+        InterAdCache.load(applicationContext)
+        Log.d("Money", "App onCreate: money=${money.hashCode()} ")
+        money.preload()
         val remoteConfig: FirebaseRemoteConfig = Firebase.remoteConfig
         val configSettings = remoteConfigSettings {
             minimumFetchIntervalInSeconds = 3600

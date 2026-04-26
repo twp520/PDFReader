@@ -35,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -65,6 +66,10 @@ fun PDFPreviewScreen(fileName: String, path: String, goback: () -> Unit) {
     val simpleViewModel = viewModel<SimpleViewModel>()
     val showADLoading = simpleViewModel.showAdLoading.collectAsStateWithLifecycle()
     val act = LocalActivity.current
+    val adId = stringResource(R.string.back_inter)
+    LaunchedEffect(Unit) {
+        simpleViewModel.setup(adId)
+    }
     Scaffold(
         topBar = {
             CommonTopBar(

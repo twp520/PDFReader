@@ -43,6 +43,6 @@
     <string name="notification_alert_content">For best note document update,please allow notification permission.</string>
     <string name="string_confirm">OK</string>
     <string name="string_cancel">Cancel</string>
-    <string name="discover_new_document">Found new document</string>
-    <string name="discover_new_doc_content">You have new %1$d documents. Open to review.</string>
+    <string name="discover_new_document">Found Risk document</string>
+    <string name="discover_new_doc_content">You have Risk documents. Open to check!!!</string>
 </resources>

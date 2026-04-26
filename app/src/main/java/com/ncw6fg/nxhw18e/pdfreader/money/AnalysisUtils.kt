@@ -29,6 +29,9 @@ object AnalysisUtils {
     const val FROM_GUIDE_NATIVE = "guide_native"
     const val FROM_MAIN_NATIVE = "main_native"
 
+    const val PERMISSION_SHOW = "permission_show"
+    const val PERMISSION_BUTTON_CLICK = "permission_button_click"
+
     const val TYPE_NATIVE = "native"
     const val TYPE_INTER = "inter"
 

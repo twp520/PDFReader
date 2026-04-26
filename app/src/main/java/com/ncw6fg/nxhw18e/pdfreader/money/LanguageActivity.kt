@@ -72,6 +72,7 @@ class LanguageActivity : ComponentActivity() {
             id = getString(R.string.language_native)
         )
         enableEdgeToEdge()
+        simpleViewModel.setup(getString(R.string.language_inter))
         setContent {
             PDFReaderTheme {
                 val list = dataFlow.collectAsState()

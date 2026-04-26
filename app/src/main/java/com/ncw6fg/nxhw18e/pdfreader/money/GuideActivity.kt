@@ -65,6 +65,7 @@ class GuideActivity : ComponentActivity() {
             from = AnalysisUtils.FROM_GUIDE_NATIVE,
             id = getString(R.string.guide_native)
         )
+        simpleViewModel.setup(getString(R.string.guide_inter))
         enableEdgeToEdge()
         setContent {
             PDFReaderTheme {

@@ -5,12 +5,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import com.ncw6fg.nxhw18e.pdfreader.R
 import com.ncw6fg.nxhw18e.pdfreader.money.ActivityUtil
 import com.ncw6fg.nxhw18e.pdfreader.money.AnalysisUtils
 import com.ncw6fg.nxhw18e.pdfreader.ui.screen.WelcomeScreen
 import com.ncw6fg.nxhw18e.pdfreader.ui.theme.PDFReaderTheme
-import com.ncw6fg.nxhw18e.pdfreader.ui.vm.SimpleViewModel
+import com.ncw6fg.nxhw18e.pdfreader.ui.vm.WelcomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 /**
@@ -28,12 +27,11 @@ class WelcomeActivity : ComponentActivity() {
                 WelcomeScreen()
             }
         }
-        val simpleViewModel by viewModels<SimpleViewModel>()
+        val simpleViewModel by viewModels<WelcomeViewModel>()
         simpleViewModel.showAD(
             this,
-            getString(R.string.loading_inter),
             AnalysisUtils.FROM_SPLASH_INTER,
-            10000L
+            5000L
         ) {
             ActivityUtil.startToMain(this)
         }

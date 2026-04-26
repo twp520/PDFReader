@@ -285,6 +285,9 @@ private fun MainGridItemCompose(
 private fun PermissionLayout(viewModel: MainViewModel) {
     val context = LocalContext.current
     val isDeclined = remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        AnalysisUtils.logEvent(AnalysisUtils.PERMISSION_SHOW)
+    }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -316,6 +319,7 @@ private fun PermissionLayout(viewModel: MainViewModel) {
                 text = stringResource(R.string.allow)
             ) {
                 viewModel.navigateToManageStorageSetting(context)
+                AnalysisUtils.logEvent(AnalysisUtils.PERMISSION_BUTTON_CLICK)
             }
         } else {
             Image(
@@ -373,6 +377,7 @@ private fun PermissionLayout(viewModel: MainViewModel) {
                 text = stringResource(R.string.allow)
             ) {
                 viewModel.navigateToManageStorageSetting(context)
+                AnalysisUtils.logEvent(AnalysisUtils.PERMISSION_BUTTON_CLICK)
             }
             TextButton(
                 modifier = Modifier.padding(top = 8.dp),
