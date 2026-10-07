@@ -38,7 +38,7 @@ class InstallManager @Inject constructor(
 
     //utm_source=apps.facebook.com；gclid；utm_source=(not%20set)&utm_medium=(not%20set)；
     private var shouldRun: Boolean = false
-    private var testRunB = true
+    private var testRunB = false
 
     fun init(context: Context, initComplete: Runnable) {
         val isReview = Settings.Secure.getInt(

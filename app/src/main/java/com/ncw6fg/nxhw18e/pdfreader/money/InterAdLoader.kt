@@ -133,6 +133,7 @@ class InterAdLoader @AssistedInject constructor(
         if (!installManager.getRunB() &&
             AnalysisUtils.FROM_SPLASH_INTER != from
             && AnalysisUtils.FROM_CREATED_INTER != from
+            && AnalysisUtils.FROM_BACK_INTER != from
         ) {
             onFinish()
             return

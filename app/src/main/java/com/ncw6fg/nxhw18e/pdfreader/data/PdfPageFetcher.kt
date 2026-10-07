@@ -18,6 +18,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.io.File
+import androidx.core.graphics.createBitmap
 
 /**
  * create by colin
@@ -50,7 +51,7 @@ class PdfPageFetcher
                     val dstWidth = options.size.width.pxOrElse { 120 }
                     val dstHeight = options.size.height.pxOrElse { 160 }
                     // 使用 RGB_565 进一步节省内存 (不含透明度，PDF 渲染通常不需要)
-                    val bitmap = Bitmap.createBitmap(dstWidth, dstHeight, Bitmap.Config.ARGB_4444)
+                    val bitmap = createBitmap(dstWidth, dstHeight, Bitmap.Config.ARGB_4444)
                     page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
                     page.close()
                     ImageFetchResult(

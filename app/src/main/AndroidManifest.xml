@@ -83,7 +83,16 @@
             android:theme="@style/Theme.PDFReader" />
         <activity
             android:name=".ui.act.PDFPreviewActivity"
-            android:theme="@style/Theme.PDFReader" />
+            android:exported="true"
+            android:theme="@style/Theme.PDFReader">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:mimeType="application/pdf" />
+                <data android:scheme="content" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".ui.act.ImagePreviewActivity"
             android:theme="@style/Theme.PDFReader" />

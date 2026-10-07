@@ -17,7 +17,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -46,6 +48,7 @@ import com.ncw6fg.nxhw18e.pdfreader.data.PdfPageModel
 import com.ncw6fg.nxhw18e.pdfreader.money.AnalysisUtils
 import com.ncw6fg.nxhw18e.pdfreader.ui.theme.AdDialog
 import com.ncw6fg.nxhw18e.pdfreader.ui.theme.CommonTopBar
+import com.ncw6fg.nxhw18e.pdfreader.ui.vm.PDFPreviewViewModel
 import com.ncw6fg.nxhw18e.pdfreader.ui.vm.SimpleViewModel
 import com.ymg.pdf.viewer.PDFView
 import java.io.File
@@ -57,7 +60,7 @@ import java.io.File
 
 @Suppress("COMPOSE_APPLIER_CALL_MISMATCH")
 @Composable
-fun PDFPreviewScreen(fileName: String, path: String, goback: () -> Unit) {
+fun PDFPreviewScreen(previewViewModel: PDFPreviewViewModel, goback: () -> Unit) {
     var isFullScreen by remember { mutableStateOf(false) }
     var currentPage by remember { mutableIntStateOf(0) }
     val pageCount = remember { mutableIntStateOf(-1) }
@@ -65,6 +68,7 @@ fun PDFPreviewScreen(fileName: String, path: String, goback: () -> Unit) {
     val isLoaded = remember { mutableStateOf(false) }
     val simpleViewModel = viewModel<SimpleViewModel>()
     val showADLoading = simpleViewModel.showAdLoading.collectAsStateWithLifecycle()
+    val previewState = previewViewModel.pdfPreviewUiState.collectAsStateWithLifecycle()
     val act = LocalActivity.current
     val adId = stringResource(R.string.back_inter)
     LaunchedEffect(Unit) {
@@ -72,19 +76,26 @@ fun PDFPreviewScreen(fileName: String, path: String, goback: () -> Unit) {
     }
     Scaffold(
         topBar = {
-            CommonTopBar(
-                title = fileName,
-                goBack = {
-                    act?.let {
-                        simpleViewModel.showAD(
-                            it,
-                            it.getString(R.string.back_inter),
-                            AnalysisUtils.FROM_BACK_INTER,
-                            finish = goback
-                        )
+            AnimatedVisibility(
+                visible = !isFullScreen,
+                enter = slideInVertically(initialOffsetY = { -it }),
+                exit = slideOutVertically(targetOffsetY = { -it })
+            ) {
+                CommonTopBar(
+                    title = previewState.value?.fileName ?: "",
+                    goBack = {
+                        act?.let {
+                            simpleViewModel.showAD(
+                                it,
+                                it.getString(R.string.back_inter),
+                                AnalysisUtils.FROM_BACK_INTER,
+                                finish = goback
+                            )
+                        }
                     }
-                }
-            )
+                )
+            }
+
         },
     ) { padding ->
         Box(modifier = Modifier.padding(padding)) {
@@ -92,9 +103,17 @@ fun PDFPreviewScreen(fileName: String, path: String, goback: () -> Unit) {
                 factory = { context ->
                     PDFView(context, null).also {
                         pdfViewRef.value = it
-                        it.fromFile(File(path))
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxSize(),
+                update = { pdfView ->
+                    Log.d("PDFPreviewScreen", "update: $pdfView")
+                    val filePath = previewState.value?.filePath
+                    if (!isLoaded.value && filePath != null) {
+                        pdfView.fromFile(File(filePath))
                             .enableSwipe(true)
-                            .swipeHorizontal(!isFullScreen) // 非全屏横向，全屏纵向
+                            .swipeHorizontal(false)
                             .defaultPage(currentPage)
                             .onPageChange { index, _ -> currentPage = index }
                             .onTap {
@@ -107,12 +126,6 @@ fun PDFPreviewScreen(fileName: String, path: String, goback: () -> Unit) {
                             }
                             .load()
                     }
-                },
-                modifier = Modifier
-                    .fillMaxSize(),
-                update = { pdfView ->
-                    Log.d("PDFPreviewScreen", "update: $pdfView")
-
                 }
             )
 
@@ -133,6 +146,7 @@ fun PDFPreviewScreen(fileName: String, path: String, goback: () -> Unit) {
                 }
             }
 
+            val listState = rememberLazyListState()
             AnimatedVisibility(
                 visible = !isFullScreen && pageCount.intValue > 0,
                 modifier = Modifier.align(Alignment.BottomCenter),
@@ -140,7 +154,8 @@ fun PDFPreviewScreen(fileName: String, path: String, goback: () -> Unit) {
                 exit = slideOutVertically(targetOffsetY = { it })
             ) {
                 ThumbnailBar(
-                    path,
+                    listState,
+                    previewState.value?.filePath ?: "",
                     pageCount.intValue,
                     currentPage
                 ) {
@@ -166,16 +181,20 @@ fun PDFPreviewScreen(fileName: String, path: String, goback: () -> Unit) {
 
 @Composable
 fun ThumbnailBar(
+    listState: LazyListState,
     filePath: String,
     pageCount: Int,
     currentIndex: Int,
     onThumbnailClick: (Int) -> Unit
 ) {
+    if (filePath.isEmpty())
+        return
     LazyRow(
         modifier = Modifier
             .fillMaxWidth()
             .height(100.dp)
             .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)),
+        state = listState,
         contentPadding = PaddingValues(8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
